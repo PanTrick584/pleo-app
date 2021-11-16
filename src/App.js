@@ -1,24 +1,40 @@
-import logo from './logo.svg';
-import './App.css';
+import React, {useEffect} from 'react'
+import AppProvider from './provider/AppProvider';
+import Navbar from './components/Navbar/Navbar'
+import { BrowserRouter as Router } from "react-router-dom";
+import { Provider as ReduxProvider } from 'react-redux'
+import { storeDeclaration } from './redux/initialStore'
 
 function App() {
+
+  let initialStore = storeDeclaration.getState()
+    
+  useEffect(() => {
+    localStorage.setItem("store", JSON.stringify(initialStore));
+  },[])
+  const saveState = (store) => {
+    try {
+      localStorage.setItem("store", JSON.stringify(store));
+    }
+    catch {
+      //error
+    }
+  }
+  storeDeclaration.subscribe(() => {
+    saveState({
+        store: initialStore
+    })
+  })
+
+  const BASENAME = "/"
+  
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ReduxProvider store={ storeDeclaration }>
+      <Router  basename={BASENAME}>
+        <Navbar />
+        <AppProvider />
+      </Router>
+    </ReduxProvider>
   );
 }
 
